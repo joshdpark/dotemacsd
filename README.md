@@ -1,0 +1,2 @@
+# dotemacsd
+emacs configuration
