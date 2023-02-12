@@ -2,21 +2,16 @@
 (add-to-list 'package-archives
 	     '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-(repeat-mode 1) ;; allow for repeats certain commands
-(when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize)) ;; set PATH to shell PATH
-(setq-default indent-tabs-mode nil) ;; spaces for tabs
+;; Initialize use-package on non-linux platforms
+(unless (package-installed-p 'use-package)        ; Unless "use-package" is installed, install "use-package"
+  (package-install 'use-package))
+(require' use-package)
+;; Make sure packages are downloaded and installed before they are run
+;; also frees you from having to put :ensure t after installing EVERY PACKAGE.
+(setq use-package-always-ensure t)
 
 ;; Meow setup
 (defun meow-setup ()
-  (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
-  (meow-motion-overwrite-define-key
-   '("j" . meow-next)
-   '("k" . meow-prev)
-   '("<escape>" . ignore))
   (meow-leader-define-key
    ;; SPC j/k will run the original command in MOTION state.
    '("j" . "H-j")
@@ -33,8 +28,7 @@
    '("8" . meow-digit-argument)
    '("9" . meow-digit-argument)
    '("0" . meow-digit-argument)
-   '("/" . meow-keypad-describe-key)
-   '("?" . meow-cheatsheet))
+   '("/" . meow-keypad-describe-key))
   (meow-normal-define-key
    '("0" . meow-expand-0)
    '("9" . meow-expand-9)
@@ -65,15 +59,15 @@
    '("g" . meow-cancel-selection)
    '("G" . meow-grab)
    '("h" . meow-left)
-   '("H" . meow-left-expand)
+   '("H" . backward-sexp)
    '("i" . meow-insert)
    '("I" . meow-open-above)
    '("j" . meow-next)
-   '("J" . meow-next-expand)
+   '("J" . down-list)
    '("k" . meow-prev)
-   '("K" . meow-prev-expand)
+   '("K" . up-list)
    '("l" . meow-right)
-   '("L" . meow-right-expand)
+   '("L" . forward-sexp)
    '("m" . meow-join)
    '("n" . meow-search)
    '("o" . meow-block)
@@ -96,35 +90,43 @@
    '("y" . meow-save)
    '("Y" . meow-sync-grab)
    '("z" . meow-pop-selection)
+   '("}" . forward-paragraph)
+   '("{" . backward-paragraph)
    '("'" . repeat)
    '("<escape>" . ignore)))
 
-(require 'meow)
-(meow-setup)
-(meow-global-mode 1)
-
-(use-package ess
-  :ensure t)
+(use-package meow
+  :config
+  (meow-setup)
+  (meow-global-mode))
+(use-package ess)
 (use-package corfu
-  :ensure t
   :init
   (global-corfu-mode))
 (use-package vertico
-  :ensure t
-  :init
+  :config
   (vertico-mode))
-
-;; LSP configuration and setup -- see performance notes for lsp mode
+(use-package magit)
+(use-package haskell-mode)
+;; Global settings
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+(repeat-mode 1) ;; allow for repeats certain commands
+;; set global variables
+(setq-default fill-column 80)
+(setq-default indent-tabs-mode nil) ;; spaces for tabs
+(setq tab-always-indent 'complete)
+;; set for lsp
 (setq read-process-output-max (expt 2 20)) ;; 1mb
 (setq gc-cons-threshold (expt 2 24))
-(use-package lsp-mode
-  :ensure t
-  :init
-  ;; set prefix for lsp-command-keymap
-  (setq lsp-keymap-prefix "C-c l")
-  :hook ((haskell-mode haskell-literate-mode) . lsp)
-  :commands lsp)
-(use-package lsp-ui :commands lsp-ui-mode)
+;; set PATH to shell PATH
+(use-package exec-path-from-shell
+  :config
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize)))
+;; start program fullscreen
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -133,14 +135,15 @@
  ;; If there is more than one, they won't work right.
  '(custom-enabled-themes '(monstera))
  '(custom-safe-themes
-   '("b56f30864c92a96e2a6aa9a953707725a5c35f0d9f37061f772c53b7a096c036" "d652cb8c095485bee329ee0a34e4a28de77f7bfdd192b8934685dffa477c16fc" default))
+   '("b56f30864c92a96e2a6aa9a953707725a5c35f0d9f37061f772c53b7a096c036" default))
  '(package-selected-packages
-   '(vertico corfu org json-mode ess-site meow exec-path-from-shell magit lsp-haskell lsp-ui lsp-mode flycheck slime ess)))
+   '(use-package vertico corfu org json-mode ess-site meow exec-path-from-shell magit flycheck ess)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(default ((t (:inherit nil :extend nil :stipple nil :background "white" :foreground "black" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight regular :height 140 :width normal :foundry "nil" :family "JetBrains Mono")))))
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
