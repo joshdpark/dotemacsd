@@ -13,10 +13,6 @@
 ;; Meow setup
 (defun meow-setup ()
   (meow-leader-define-key
-   ;; SPC j/k will run the original command in MOTION state.
-   '("j" . "H-j")
-   '("k" . "H-k")
-   '("u" . "C-u")
    ;; Use SPC (0-9) for digit arguments.
    '("1" . meow-digit-argument)
    '("2" . meow-digit-argument)
@@ -59,7 +55,7 @@
    '("g" . meow-cancel-selection)
    '("G" . meow-grab)
    '("h" . meow-left)
-   '("H" . backward-sexp)
+   '("(" . backward-sexp)
    '("i" . meow-insert)
    '("I" . meow-open-above)
    '("j" . meow-next)
@@ -67,7 +63,7 @@
    '("k" . meow-prev)
    '("K" . up-list)
    '("l" . meow-right)
-   '("L" . forward-sexp)
+   '(")" . forward-sexp)
    '("m" . meow-join)
    '("n" . meow-search)
    '("o" . meow-block)
@@ -108,25 +104,28 @@
   (vertico-mode))
 (use-package magit)
 (use-package haskell-mode)
-;; Global settings
+
+;;; Global settings
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
-(repeat-mode 1) ;; allow for repeats certain commands
-;; set global variables
+(repeat-mode 1)                         ; allow for repeats certain commands
 (setq-default fill-column 80)
-(setq-default indent-tabs-mode nil) ;; spaces for tabs
+(setq-default indent-tabs-mode nil)     ; spaces for tabs
 (setq tab-always-indent 'complete)
+(add-to-list 'initial-frame-alist '(fullscreen . maximized)) ; set fullscreen
+;; macos modifiers
+(setq mac-command-modifier 'meta)
+(setq mac-option-modifier 'super)
+
 ;; set for lsp
-(setq read-process-output-max (expt 2 20)) ;; 1mb
-(setq gc-cons-threshold (expt 2 24))
+(setq read-process-output-max (expt 2 20)) ; lsp settings
+(setq gc-cons-threshold (expt 2 24))       ; for performance
 ;; set PATH to shell PATH
 (use-package exec-path-from-shell
   :config
   (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize)))
-;; start program fullscreen
-(add-to-list 'initial-frame-alist '(fullscreen . maximized))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
