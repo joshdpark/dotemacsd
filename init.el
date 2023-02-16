@@ -104,23 +104,28 @@
   (vertico-mode))
 (use-package magit)
 (use-package haskell-mode)
+(use-package pyvenv
+  :init
+  (setenv "WORKON_HOME" "~/.pyenv/versions"))
 
 ;;; Global settings
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 (repeat-mode 1)                         ; allow for repeats certain commands
-(setq-default fill-column 80)
+(auto-fill-mode 1)                      ; automatic line breaks
+(column-number-mode 1)                  ; add column line to bottom of frame
+(global-auto-revert-mode 1)             ; auto-revert files to saved
+(setq-default fill-column 80)           ; automatically break lines after 80 columns
 (setq-default indent-tabs-mode nil)     ; spaces for tabs
-(setq tab-always-indent 'complete)
+(setq tab-always-indent 'complete)      ; tab for indent and completion
 (add-to-list 'initial-frame-alist '(fullscreen . maximized)) ; set fullscreen
 ;; macos modifiers
 (setq mac-command-modifier 'meta)
 (setq mac-option-modifier 'super)
-
-;; set for lsp
-(setq read-process-output-max (expt 2 20)) ; lsp settings
-(setq gc-cons-threshold (expt 2 24))       ; for performance
+;; set for lsp performance
+(setq read-process-output-max (expt 2 20))
+(setq gc-cons-threshold (expt 2 24))
 ;; set PATH to shell PATH
 (use-package exec-path-from-shell
   :config
@@ -136,7 +141,7 @@
  '(custom-safe-themes
    '("b56f30864c92a96e2a6aa9a953707725a5c35f0d9f37061f772c53b7a096c036" default))
  '(package-selected-packages
-   '(use-package vertico corfu org json-mode ess-site meow exec-path-from-shell magit flycheck ess)))
+   '(haskell-mode pyvenv use-package vertico corfu org json-mode ess-site meow exec-path-from-shell magit flycheck ess)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -146,3 +151,4 @@
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
+(put 'scroll-left 'disabled nil)
