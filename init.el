@@ -2,7 +2,6 @@
 (add-to-list 'package-archives
 	     '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
-;; Initialize use-package on non-linux platforms
 (unless (package-installed-p 'use-package)        ; Unless "use-package" is installed, install "use-package"
   (package-install 'use-package))
 (require' use-package)
@@ -55,15 +54,15 @@
    '("g" . meow-cancel-selection)
    '("G" . meow-grab)
    '("h" . meow-left)
-   '("(" . backward-sexp)
+   '("H" . meow-left-expand)
    '("i" . meow-insert)
    '("I" . meow-open-above)
    '("j" . meow-next)
-   '("J" . down-list)
+   '("J" . meow-next-expand)
    '("k" . meow-prev)
-   '("K" . up-list)
+   '("K" . meow-prev-expand)
    '("l" . meow-right)
-   '(")" . forward-sexp)
+   '("L" . meow-right-expand)
    '("m" . meow-join)
    '("n" . meow-search)
    '("o" . meow-block)
@@ -86,15 +85,21 @@
    '("y" . meow-save)
    '("Y" . meow-sync-grab)
    '("z" . meow-pop-selection)
+   '("'" . repeat)
    '("}" . forward-paragraph)
    '("{" . backward-paragraph)
-   '("'" . repeat)
-   '("<escape>" . ignore)))
+   '(")" . forward-sexp)
+   '("(" . backward-sexp)
+   ))
 
-(use-package meow
-  :config
-  (meow-setup)
-  (meow-global-mode))
+;; (use-package meow
+;;   :config
+;;   (meow-setup)
+;;   (meow-global-mode)
+;;   :hook
+;;   ((help-mode Info-mode) . (lambda () (meow-mode -1))))
+;; figure out a way to use 'buffer-read-only as a hook
+;; also don't want it in a 'comint-mode like a shell
 (use-package ess)
 (use-package corfu
   :init
@@ -107,6 +112,17 @@
 (use-package pyvenv
   :init
   (setenv "WORKON_HOME" "~/.pyenv/versions"))
+(use-package flymake
+  :bind
+  (:map flymake-mode-map
+        (("M-n" . flymake-goto-next-error)
+         ("M-p" . flymake-goto-prev-error))))
+;; add ruff-lsp as python lsp server
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '(python-mode
+                 . ,(eglot-alternatives
+                     '("pylsp" "ruff-lsp")))))
 
 ;;; Global settings
 (menu-bar-mode -1)
@@ -118,7 +134,11 @@
 (global-auto-revert-mode 1)             ; auto-revert files to saved
 (setq-default fill-column 80)           ; automatically break lines after 80 columns
 (setq-default indent-tabs-mode nil)     ; spaces for tabs
+(setq inhibit-startup-screen 1)         ; disable startup screen
+(setq confirm-kill-processes nil)       ; don't confirm kill process
+(setq use-short-answers 1)              ; use y/n/p for answering questions
 (setq tab-always-indent 'complete)      ; tab for indent and completion
+(setq backup-directory-alist '(("." . "~/.emacs.d/backup"))) ; set backup dir
 (add-to-list 'initial-frame-alist '(fullscreen . maximized)) ; set fullscreen
 ;; macos modifiers
 (setq mac-command-modifier 'meta)
@@ -131,24 +151,9 @@
   :config
   (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize)))
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-enabled-themes '(monstera))
- '(custom-safe-themes
-   '("b56f30864c92a96e2a6aa9a953707725a5c35f0d9f37061f772c53b7a096c036" default))
- '(package-selected-packages
-   '(haskell-mode pyvenv use-package vertico corfu org json-mode ess-site meow exec-path-from-shell magit flycheck ess)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :extend nil :stipple nil :background "white" :foreground "black" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight regular :height 140 :width normal :foundry "nil" :family "JetBrains Mono")))))
+;; set global keymap for 'other-window
+(global-set-key (kbd "M-o") 'other-window)
+;; set custom-file
+(setq custom-file "~/.emacs.d/custom.el")
+(load-file custom-file)
 (put 'upcase-region 'disabled nil)
-(put 'downcase-region 'disabled nil)
-(put 'narrow-to-region 'disabled nil)
-(put 'scroll-left 'disabled nil)
