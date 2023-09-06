@@ -92,12 +92,11 @@
    '("(" . backward-sexp)
    ))
 
-;; (use-package meow
-;;   :config
-;;   (meow-setup)
-;;   (meow-global-mode)
-;;   :hook
-;;   ((help-mode Info-mode) . (lambda () (meow-mode -1))))
+(use-package meow
+  :config
+  (meow-setup)
+  (meow-global-mode))
+
 ;; figure out a way to use 'buffer-read-only as a hook
 ;; also don't want it in a 'comint-mode like a shell
 (use-package ess)
