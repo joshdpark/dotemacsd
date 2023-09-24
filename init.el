@@ -92,10 +92,10 @@
    '("(" . backward-sexp)
    ))
 
-(use-package meow
-  :config
-  (meow-setup)
-  (meow-global-mode))
+;; (use-package meow
+;;   :config
+;;   (meow-setup)
+;;   (meow-global-mode))
 
 ;; figure out a way to use 'buffer-read-only as a hook
 ;; also don't want it in a 'comint-mode like a shell
@@ -107,7 +107,7 @@
   :config
   (vertico-mode))
 (use-package magit)
-(use-package haskell-mode)
+;; (use-package haskell-mode)
 (use-package pyvenv
   :init
   (setenv "WORKON_HOME" "~/.pyenv/versions"))
