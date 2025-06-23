@@ -9,136 +9,69 @@
 ;; also frees you from having to put :ensure t after installing EVERY PACKAGE.
 (setq use-package-always-ensure t)
 
-;; Meow setup
-(defun meow-setup ()
-  (meow-leader-define-key
-   ;; Use SPC (0-9) for digit arguments.
-   '("1" . meow-digit-argument)
-   '("2" . meow-digit-argument)
-   '("3" . meow-digit-argument)
-   '("4" . meow-digit-argument)
-   '("5" . meow-digit-argument)
-   '("6" . meow-digit-argument)
-   '("7" . meow-digit-argument)
-   '("8" . meow-digit-argument)
-   '("9" . meow-digit-argument)
-   '("0" . meow-digit-argument)
-   '("/" . meow-keypad-describe-key))
-  (meow-normal-define-key
-   '("0" . meow-expand-0)
-   '("9" . meow-expand-9)
-   '("8" . meow-expand-8)
-   '("7" . meow-expand-7)
-   '("6" . meow-expand-6)
-   '("5" . meow-expand-5)
-   '("4" . meow-expand-4)
-   '("3" . meow-expand-3)
-   '("2" . meow-expand-2)
-   '("1" . meow-expand-1)
-   '("-" . negative-argument)
-   '(";" . meow-reverse)
-   '("," . meow-inner-of-thing)
-   '("." . meow-bounds-of-thing)
-   '("[" . meow-beginning-of-thing)
-   '("]" . meow-end-of-thing)
-   '("a" . meow-append)
-   '("A" . meow-open-below)
-   '("b" . meow-back-word)
-   '("B" . meow-back-symbol)
-   '("c" . meow-change)
-   '("d" . meow-delete)
-   '("D" . meow-backward-delete)
-   '("e" . meow-next-word)
-   '("E" . meow-next-symbol)
-   '("f" . meow-find)
-   '("g" . meow-cancel-selection)
-   '("G" . meow-grab)
-   '("h" . meow-left)
-   '("H" . meow-left-expand)
-   '("i" . meow-insert)
-   '("I" . meow-open-above)
-   '("j" . meow-next)
-   '("J" . meow-next-expand)
-   '("k" . meow-prev)
-   '("K" . meow-prev-expand)
-   '("l" . meow-right)
-   '("L" . meow-right-expand)
-   '("m" . meow-join)
-   '("n" . meow-search)
-   '("o" . meow-block)
-   '("O" . meow-to-block)
-   '("p" . meow-yank)
-   '("P" . meow-yank-pop)
-   '("q" . meow-quit)
-   '("Q" . meow-goto-line)
-   '("r" . meow-replace)
-   '("R" . meow-swap-grab)
-   '("s" . meow-kill)
-   '("t" . meow-till)
-   '("u" . meow-undo)
-   '("U" . meow-undo-in-selection)
-   '("v" . meow-visit)
-   '("w" . meow-mark-word)
-   '("W" . meow-mark-symbol)
-   '("x" . meow-line)
-   '("X" . meow-goto-line)
-   '("y" . meow-save)
-   '("Y" . meow-sync-grab)
-   '("z" . meow-pop-selection)
-   '("'" . repeat)
-   '("}" . forward-paragraph)
-   '("{" . backward-paragraph)
-   '(")" . forward-sexp)
-   '("(" . backward-sexp)
-   ))
-
-;; (use-package meow
-;;   :config
-;;   (meow-setup)
-;;   (meow-global-mode))
-
 ;; figure out a way to use 'buffer-read-only as a hook
 ;; also don't want it in a 'comint-mode like a shell
-(use-package ess)
+(use-package ido
+  :init
+  (ido-mode))
 (use-package corfu
   :init
   (global-corfu-mode))
+(use-package cape
+    :bind (("C-c p p" . completion-at-point) ;; capf
+         ("C-c p t" . complete-tag)        ;; etags
+         ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
+         ("C-c p h" . cape-history)
+         ("C-c p f" . cape-file)
+         ("C-c p k" . cape-keyword)
+         ("C-c p s" . cape-elisp-symbol)
+         ("C-c p e" . cape-elisp-block)
+         ("C-c p a" . cape-abbrev)
+         ("C-c p l" . cape-line))
+    :init
+    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+    (add-to-list 'completion-at-point-functions #'cape-file))
 (use-package vertico
   :config
   (vertico-mode))
 (use-package magit)
-;; (use-package haskell-mode)
 (use-package pyvenv
   :init
-  (setenv "WORKON_HOME" "~/.pyenv/versions"))
+  (pyvenv-mode))
 (use-package flymake
   :bind
   (:map flymake-mode-map
         (("M-n" . flymake-goto-next-error)
          ("M-p" . flymake-goto-prev-error))))
-;; add ruff-lsp as python lsp server
-(with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs
-               '(python-mode
-                 . ,(eglot-alternatives
-                     '("pylsp" "ruff-lsp")))))
+(use-package zig-mode)
+
+;; cc-mode
+(add-hook 'c-mode-common-hook
+          (lambda ()
+            (setq-default c-basic-offset 4)
+            (setq-default c-default-style '(other. "stroustrup"))
+            (setq show-trailing-whitespace t)
+            ))
 
 ;;; Global settings
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-(repeat-mode 1)                         ; allow for repeats certain commands
-(auto-fill-mode 1)                      ; automatic line breaks
-(column-number-mode 1)                  ; add column line to bottom of frame
-(global-auto-revert-mode 1)             ; auto-revert files to saved
-(setq-default fill-column 80)           ; automatically break lines after 80 columns
-(setq-default indent-tabs-mode nil)     ; spaces for tabs
-(setq inhibit-startup-screen 1)         ; disable startup screen
-(setq confirm-kill-processes nil)       ; don't confirm kill process
-(setq use-short-answers 1)              ; use y/n/p for answering questions
-(setq tab-always-indent 'complete)      ; tab for indent and completion
-(setq backup-directory-alist '(("." . "~/.emacs.d/backup"))) ; set backup dir
-(add-to-list 'initial-frame-alist '(fullscreen . maximized)) ; set fullscreen
+(tool-bar-mode -1)                            ; remove the tool bar
+(add-hook 'text-mode-hook 'turn-on-auto-fill) ; automatic line breaks
+(repeat-mode 1)                     ; allow for repeats certain commands
+(column-number-mode 1)              ; add column line to bottom of frame
+(global-auto-revert-mode 1)         ; auto-revert files to saved
+(setq backup-by-copying t)          ; backup by moving actual file
+(setq-default fill-column 80)       ; automatically break lines after 80 columns
+(setq-default indent-tabs-mode nil) ; spaces for tabs
+(setq-default pixel-scroll-precision-mode t) ; better scrolling
+(setq inhibit-startup-screen 1)              ; disable startup creen
+(setq confirm-kill-processes nil)            ; don't confirm kill process
+(setq use-short-answers 1)                   ; use y/n/p for answering questions
+(setq tab-always-indent 'complete)           ; tab for indent and completion
+(setq sentence-end-double-space nil)         ; sentence ends with one space
+(setq backup-directory-alist
+      '(("." . "~/.emacs.d/backup")))   ; set backup dir
+(setq backup-by-copying t)
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
 ;; macos modifiers
 (setq mac-command-modifier 'meta)
 (setq mac-option-modifier 'super)
@@ -148,11 +81,23 @@
 ;; set PATH to shell PATH
 (use-package exec-path-from-shell
   :config
+  (setq exec-path-from-shell-arguments nil)
   (when (memq window-system '(mac ns x))
-    (exec-path-from-shell-initialize)))
-;; set global keymap for 'other-window
-(global-set-key (kbd "M-o") 'other-window)
+    (exec-path-from-shell-initialize))) 
+
+(global-set-key (kbd "M-o") 'other-window)         ; keymap for 'other-window
+(global-set-key (kbd "C-S-j") 'set-mark-command)   ; easier way to set mark
+(global-set-key (kbd "C-S-h") 'help-command)       ; remap help prefix
+
+;; use modus themes
+(setq modus-themes-bold-constructs t
+      modus-themes-italic-constructs t)
+(require-theme 'modus-themes)
+(load-theme 'modus-operandi)
+
 ;; set custom-file
 (setq custom-file "~/.emacs.d/custom.el")
 (load-file custom-file)
+;; disabling advanced features
 (put 'upcase-region 'disabled nil)
+
